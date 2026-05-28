@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heartland AI Training Lab — JLL PDS</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --g900:#0e1d23;--g800:#172a33;--g700:#253d47;--g600:#3c535c;
+  --g500:#5d7078;--g400:#919da2;--g300:#cad1d5;--g200:#dce2e5;
+  --g100:#eff3f4;--g50:#f2f6f7;
+  --b600:#0d5c78;--b500:#16799b;--b400:#40a4c8;--b300:#6ab8d4;
+  --b200:#a8d8ea;--b100:#d0ecf5;--b50:#e7f4f9;
+  --red:#DE0614;--white:#fff;
+  --font:'Source Sans 3',system-ui,sans-serif;
+  --r4:4px;--r8:8px;--r12:12px;--r16:16px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;scroll-behavior:smooth;}
+body{font-family:var(--font);color:var(--g900);background:var(--g50);
+  -webkit-font-smoothing:antialiased;line-height:1.55;}
+
+/* ═══ TOP BAR ═══ */
+.topbar{
+  background:var(--g900);height:52px;
+  display:flex;align-items:center;padding:0 24px;gap:12px;
+  position:sticky;top:0;z-index:300;
+  border-bottom:2px solid var(--b500);
+}
+.topbar-brand{display:flex;align-items:center;gap:10px;}
+.topbar-divider{width:1px;height:16px;background:rgba(255,255,255,.2);}
+.topbar-title{font-size:13px;font-weight:600;color:white;}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.timer-btn{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:white;border-radius:var(--r8);padding:5px 14px;
+  font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);
+  transition:all .15s;display:flex;align-items:center;gap:6px;
+}
+.timer-btn:hover{background:var(--b500);border-color:var(--b500);}
+.timer-btn.running{background:rgba(22,121,155,.3);border-color:var(--b400);}
+.timer-btn.amber{background:rgba(234,179,8,.2);border-color:#ca8a04;color:#fde68a;}
+.timer-btn.red{background:rgba(222,6,20,.25);border-color:var(--red);color:#fca5a5;}
+.session-badge{
+  background:var(--b500);color:white;border-radius:99px;
+  padding:3px 10px;font-size:11px;font-weight:700;
+}
+
+/* ═══ TAB NAV ═══ */
+.tabnav{
+  background:white;border-bottom:1px solid var(--g200);
+  display:flex;overflow-x:auto;
+  position:sticky;top:52px;z-index:200;
+}
+.tabnav::-webkit-scrollbar{height:3px;}
+.tabnav::-webkit-scrollbar-thumb{background:var(--b300);}
+.tab-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:13px 18px;
+  border:none;background:none;
+  color:var(--g400);font-family:var(--font);font-size:12.5px;font-weight:600;
+  cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:all .15s;flex-shrink:0;
+}
+.tab-btn:hover{color:var(--g700);background:var(--b50);}
+.tab-btn.active{color:var(--b500);border-bottom-color:var(--b500);background:var(--b50);}
+.tab-num{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--g200);color:var(--g500);
+  font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.tab-btn.active .tab-num{background:var(--b500);color:white;}
+.tab-btn.special .tab-num{background:var(--g900);color:var(--b300);}
+.tab-btn.special{color:var(--g700);}
+.tab-btn.special.active{color:var(--g900);}
+.tab-btn.special.active .tab-num{background:var(--g900);color:var(--b300);}
+
+/* ═══ CONTENT ═══ */
+.page-wrap{max-width:1000px;margin:0 auto;padding:28px 22px 80px;}
+.tab-page{display:none;}
+.tab-page.active{display:block;}
+
+/* ═══ HERO ═══ */
+.hero{
+  background:var(--g900);border-radius:var(--r16);
+  padding:36px 40px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;
+  width:280px;height:280px;border-radius:50%;background:rgba(22,121,155,.12);}
+.hero::after{content:'';position:absolute;bottom:-40px;right:80px;
+  width:160px;height:160px;border-radius:50%;background:rgba(64,164,200,.08);}
+.hero-eye{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-bottom:10px;}
+.hero-title{font-size:28px;font-weight:300;color:white;line-height:1.2;margin-bottom:6px;position:relative;}
+.hero-title strong{font-weight:700;}
+.hero-title .red{color:var(--red);}
+.hero-title .accent{color:var(--b300);}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.58);line-height:1.6;
+  max-width:580px;margin-bottom:22px;position:relative;}
+.hero-pills{display:flex;gap:7px;flex-wrap:wrap;position:relative;}
+.hero-pill{
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+  border-radius:99px;padding:4px 12px;
+  font-size:11px;font-weight:500;color:rgba(255,255,255,.75);
+}
+
+/* ═══ SECTION HEADERS ═══ */
+.sec-eye{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--b500);margin-bottom:5px;}
+.sec-title{font-size:20px;font-weight:700;color:var(--g900);margin-bottom:3px;}
+.sec-sub{font-size:13px;color:var(--g500);margin-bottom:16px;}
+.accent-bar{width:40px;height:3px;background:var(--b500);border-radius:2px;margin-bottom:18px;}
+
+/* ═══ CARDS ═══ */
+.card{background:white;border-radius:var(--r12);border:1px solid var(--g200);
+  box-shadow:0 1px 4px rgba(14,29,35,.06);overflow:hidden;}
+.card-body{padding:20px 22px;}
+.card-header{
+  padding:11px 18px;font-size:12px;font-weight:700;color:white;
+  display:flex;align-items:center;gap:8px;
+}
+.ocean-card{background:var(--b50);border-color:var(--b200);}
+.dark-card{background:var(--g900);border:none;}
+
+/* ═══ GRIDS ═══ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+
+/* ═══ SURVEY STATS ═══ */
+.stat-card{background:white;border:1px solid var(--g200);border-radius:var(--r12);
+  padding:16px;border-top:4px solid var(--b500);}
+.stat-num{font-size:26px;font-weight:300;color:var(--b600);line-height:1;margin-bottom:4px;}
+.stat-lbl{font-size:11px;color:var(--g600);line-height:1.4;margin-bottom:5px;}
+.stat-sub{font-size:10px;font-weight:700;color:var(--b500);}
+
+.bar-row{margin-bottom:8px;}
+.bar-head{display:flex;justify-content:space-between;margin-bottom:3px;}
+.bar-label{font-size:11.5px;color:var(--g600);}
+.bar-val{font-size:11px;font-weight:700;color:var(--b500);}
+.bar-track{height:9px;background:var(--g200);border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:99px;background:var(--b500);
+  transition:width .8s cubic-bezier(.4,0,.2,1);}
+
+.quote-card{background:white;border:1px solid var(--b200);border-radius:var(--r8);
+  border-left:4px solid var(--g400);padding:14px 16px;}
+.quote-card.ocean{border-left-color:var(--b500);}
+.quote-text{font-size:12px;color:var(--g600);font-style:italic;line-height:1.6;margin-bottom:5px;}
+.quote-source{font-size:10.5px;color:var(--g400);}
+
+/* ═══ AI ROLES ═══ */
+.role-card{
+  background:white;border:1px solid var(--g200);border-radius:var(--r12);
+  padding:16px;display:flex;flex-direction:column;gap:6px;
+  border-top:3px solid var(--b500);
+  transition:box-shadow .15s,transform .15s;
+}
+.role-card:hover{box-shadow:0 4px 16px rgba(14,29,35,.08);transform:translateY(-2px);}
+.role-title{font-size:13px;font-weight:700;color:var(--g900);}
+.role-desc{font-size:11.5px;color:var(--g600);line-height:1.55;}
+.role-example{font-size:11px;font-style:italic;color:var(--b500);
+  background:var(--b50);border-radius:var(--r4);padding:6px 8px;margin-top:2px;}
+
+/* ═══ CORE FRAMEWORK ═══ */
+.core-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.core-card{
+  background:var(--b50);border:1px solid var(--b200);
+  border-radius:var(--r12);overflow:hidden;text-align:center;
+}
+.core-letter{font-size:48px;font-weight:700;line-height:1;
+  padding:14px 0 2px;opacity:.15;}
+.core-body{padding:0 12px 14px;}
+.core-word{font-size:13px;font-weight:700;color:var(--g900);margin-bottom:3px;}
+.core-desc{font-size:11px;color:var(--g500);margin-bottom:8px;}
+.core-ex{background:white;border:1px solid var(--b200);border-radius:var(--r4);
+  padding:7px 9px;font-size:10.5px;font-style:italic;color:var(--b500);
+  line-height:1.5;text-align:left;}
+
+/* ═══ PROMPT BLOCKS ═══ */
+.prompt-box{
+  background:var(--g900);border-radius:var(--r12);
+  padding:16px 18px;font-family:'Courier New',monospace;
+  font-size:11.5px;line-height:1.7;color:var(--b200);
+  white-space:pre-wrap;position:relative;
+}
+.copy-btn{
+  position:absolute;top:10px;right:10px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.7);border-radius:var(--r4);
+  padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;
+  font-family:var(--font);transition:all .15s;
+}
+.copy-btn:hover{background:var(--b500);border-color:var(--b500);color:white;}
+.copy-btn.copied{background:rgba(34,197,94,.25);border-color:#22c55e;color:#4ade80;}
+.prompt-tip{
+  background:var(--b50);border:1px solid var(--b200);
+  border-left:3px solid var(--b500);
+  border-radius:0 var(--r8) var(--r8) 0;
+  padding:9px 13px;font-size:12px;color:var(--b600);
+  line-height:1.5;margin-top:6px;
+}
+
+/* ═══ LAB STEPS ═══ */
+.step-banner{
+  border-radius:var(--r12);padding:14px 18px;
+  margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;
+  color:white;font-weight:700;font-size:14px;
+}
+.step-num-circle{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;flex-shrink:0;
+}
+.step-meta{font-size:11px;font-weight:400;opacity:.75;margin-top:2px;}
+.decision-box{
+  background:var(--b50);border:2px solid var(--b400);
+  border-radius:var(--r12);padding:16px 18px;
+  margin:16px 0;
+}
+.decision-title{font-size:13px;font-weight:700;color:var(--b600);margin-bottom:8px;}
+.decision-opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+.decision-opt{
+  background:white;border:1px solid var(--b200);
+  border-radius:var(--r8);padding:8px 14px;
+  font-size:12px;font-weight:600;color:var(--g700);
+  cursor:pointer;transition:all .15s;
+}
+.decision-opt:hover{background:var(--b500);color:white;border-color:var(--b500);}
+.write-space{
+  border:1.5px dashed var(--g300);border-radius:var(--r8);
+  padding:12px;min-height:64px;margin:10px 0;
+  position:relative;
+}
+.write-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--g400);margin-bottom:4px;}
+.write-input{width:100%;border:none;outline:none;font-family:var(--font);
+  font-size:12.5px;color:var(--g700);background:transparent;resize:vertical;
+  min-height:48px;line-height:1.55;}
+
+/* ═══ BONUS ACTIVITY ═══ */
+.bonus-box{
+  background:linear-gradient(135deg,var(--g900) 0%,#1a3a4a 100%);
+  border-radius:var(--r16);padding:24px 26px;
+  border:1px solid rgba(64,164,200,.2);
+  position:relative;overflow:hidden;
+}
+.bonus-box::before{content:'BONUS';
+  position:absolute;top:16px;right:20px;
+  font-size:10px;font-weight:700;letter-spacing:.12em;
+  color:var(--b300);opacity:.5;}
+.bonus-title{font-size:16px;font-weight:700;color:white;margin-bottom:6px;}
+.bonus-sub{font-size:12.5px;color:rgba(255,255,255,.55);margin-bottom:16px;line-height:1.55;}
+.bonus-prompt-area{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:var(--r8);padding:14px 16px;
+  font-family:'Courier New',monospace;font-size:11.5px;color:var(--b200);
+  line-height:1.7;white-space:pre-wrap;position:relative;
+  margin-bottom:12px;
+}
+.bonus-input{
+  width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--r8);padding:10px 14px;
+  font-family:var(--font);font-size:12.5px;color:white;
+  outline:none;transition:border-color .15s;min-height:52px;resize:vertical;
+  margin-bottom:8px;
+}
+.bonus-input::placeholder{color:rgba(255,255,255,.3);}
+.bonus-input:focus{border-color:var(--b400);}
+.bonus-btn{
+  background:var(--b500);color:white;border:none;border-radius:var(--r8);
+  padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:var(--font);transition:background .15s;
+}
+.bonus-btn:hover{background:var(--b600);}
+.bonus-output{
+  background:var(--b50);border:1px solid var(--b200);
+  border-radius:var(--r8);padding:14px 16px;
+  font-size:12.5px;color:var(--g700);line-height:1.6;
+  display:none;margin-top:8px;
+}
+
+/* ═══ PROMPT LIBRARY ═══ */
+.prompt-category{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--b500);border-bottom:2px solid var(--b500);padding-bottom:6px;
+  margin-bottom:12px;margin-top:20px;}
+.prompt-entry{background:white;border:1px solid var(--g200);border-radius:var(--r8);
+  margin-bottom:10px;overflow:hidden;}
+.prompt-entry-head{
+  background:var(--g50);border-bottom:1px solid var(--g200);
+  padding:8px 14px;display:flex;align-items:center;gap:8px;
+}
+.level-badge{
+  font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:99px;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.lv-basic{background:var(--b50);color:var(--b600);}
+.lv-int{background:var(--b100);color:var(--b600);}
+.lv-adv{background:var(--b500);color:white;}
+.lv-fun{background:var(--g100);color:var(--g600);}
+.prompt-entry-title{font-size:12.5px;font-weight:700;color:var(--g900);}
+.prompt-entry-body{padding:12px 14px;}
+
+/* ═══ CLAUDE COMPARISON ═══ */
+.coming-soon-hero{
+  background:linear-gradient(135deg,var(--g900) 0%,#0d2d3d 60%,var(--b600) 100%);
+  border-radius:var(--r16);padding:36px 40px;margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.coming-soon-hero::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:240px;height:240px;border-radius:50%;
+  background:radial-gradient(circle,rgba(64,164,200,.25),transparent 70%);
+}
+.coming-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(64,164,200,.2);border:1px solid rgba(64,164,200,.4);
+  border-radius:99px;padding:4px 14px;
+  font-size:11px;font-weight:700;color:var(--b300);
+  margin-bottom:14px;letter-spacing:.05em;text-transform:uppercase;
+}
+.pulse-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--b300);
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+
+.compare-table{width:100%;border-collapse:collapse;border-radius:var(--r12);overflow:hidden;}
+.compare-table th{padding:11px 14px;font-size:11.5px;font-weight:700;text-align:left;}
+.compare-table td{padding:10px 14px;font-size:12px;color:var(--g600);
+  border-bottom:1px solid var(--g200);vertical-align:top;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:nth-child(even) td{background:var(--b50);}
+.td-win{color:var(--b500);font-weight:700;}
+.td-good{color:var(--g600);}
+.td-soon{color:var(--g400);font-style:italic;}
+
+.capability-card{
+  background:white;border:1px solid var(--g200);border-radius:var(--r12);
+  padding:16px;border-top:3px solid var(--b500);
+}
+.capability-card.dark-top{border-top-color:var(--g900);}
+.cap-label{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--b500);margin-bottom:6px;}
+.cap-label.dark{color:var(--g900);}
+.cap-title{font-size:14px;font-weight:700;color:var(--g900);margin-bottom:8px;}
+.cap-list{list-style:none;}
+.cap-list li{display:flex;gap:8px;padding:5px 0;
+  border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600);}
+.cap-list li:last-child{border-bottom:none;}
+.cap-dot{width:6px;height:6px;border-radius:50%;background:var(--b500);
+  flex-shrink:0;margin-top:5px;}
+.cap-dot.dark{background:var(--g700);}
+
+/* ═══ FACILITATOR ═══ */
+.fac-note{
+  background:#fff8f4;border:1px solid #fbc8a8;
+  border-left:4px solid #be4501;
+  border-radius:0 var(--r8) var(--r8) 0;
+  padding:12px 16px;margin-bottom:14px;
+}
+.fac-label{font-size:9px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:#8d3301;margin-bottom:4px;}
+.fac-body{font-size:12px;color:#8d3301;line-height:1.55;}
+.tl-item{display:flex;gap:14px;padding-bottom:18px;position:relative;}
+.tl-item::before{content:'';position:absolute;left:15px;top:32px;bottom:0;
+  width:2px;background:var(--g200);}
+.tl-item:last-child::before{display:none;}
+.tl-dot{width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-size:13px;font-weight:700;flex-shrink:0;z-index:1;}
+.tl-body{flex:1;}
+.tl-time{font-size:9.5px;font-weight:700;color:var(--g400);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.tl-title{font-size:14px;font-weight:700;color:var(--g900);margin-bottom:4px;}
+.tl-text{font-size:12px;color:var(--g600);line-height:1.55;}
+.say-box{
+  background:var(--b50);border-left:3px solid var(--b500);
+  border-radius:0 var(--r4) var(--r4) 0;
+  padding:8px 12px;margin-top:8px;
+  font-size:12px;color:var(--b600);font-style:italic;line-height:1.5;
+}
+.sideways-q{border:1px solid var(--g200);border-radius:var(--r8);
+  margin-bottom:8px;overflow:hidden;}
+.sq-head{background:var(--g50);padding:9px 14px;font-size:12px;font-weight:600;color:var(--g900);}
+.sq-body{padding:10px 14px;font-size:12px;color:var(--g600);line-height:1.55;}
+.checklist{list-style:none;}
+.checklist li{display:flex;gap:9px;padding:7px 0;
+  border-bottom:1px solid var(--g200);font-size:12.5px;color:var(--g600);}
+.checklist li:last-child{border-bottom:none;}
+.check{width:14px;height:14px;border:1.5px solid var(--b400);
+  border-radius:3px;flex-shrink:0;margin-top:2px;}
+
+/* ═══ JLL STRATEGY BANNER ═══ */
+.strategy-strip{
+  background:var(--g900);border-radius:var(--r12);
+  padding:18px 22px;margin-bottom:20px;
+  display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+}
+.strategy-item{display:flex;flex-direction:column;gap:2px;flex:1;min-width:150px;}
+.strategy-item-label{font-size:9px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.38);}
+.strategy-item-val{font-size:12.5px;font-weight:600;color:white;}
+.strategy-divider{width:1px;height:36px;background:rgba(255,255,255,.12);}
+
+/* ═══ ALERTS ═══ */
+.alert{border-radius:var(--r8);padding:12px 16px;
+  display:flex;gap:9px;align-items:flex-start;margin-bottom:14px;}
+.alert-info{background:var(--b50);color:var(--b600);}
+.alert-warn{background:#fff8f4;color:#8d3301;}
+.alert-body{font-size:12.5px;line-height:1.5;}
+.alert-title{font-weight:700;margin-bottom:2px;}
+.alert-icon{font-size:16px;flex-shrink:0;}
+
+/* ═══ INFO STRIP ═══ */
+.info-strip{
+  background:var(--b50);border:1px solid var(--b200);
+  border-left:3px solid var(--b500);
+  border-radius:0 var(--r8) var(--r8) 0;
+  padding:11px 14px;
+  font-size:12.5px;color:var(--b600);line-height:1.5;
+  display:flex;gap:8px;align-items:flex-start;margin-bottom:14px;
+}
+
+/* ═══ DEBRIEF ═══ */
+.debrief-card{
+  background:var(--b50);border:1px solid var(--b200);
+  border-radius:var(--r12);padding:18px 20px;
+}
+.debrief-title{font-size:14px;font-weight:700;color:var(--b600);margin-bottom:10px;}
+.debrief-q{font-size:12.5px;color:var(--g700);padding:6px 0;
+  border-bottom:1px solid var(--b200);line-height:1.5;}
+.debrief-q:last-child{border-bottom:none;}
+.debrief-q::before{content:'Q  ';font-weight:700;color:var(--b500);}
+
+/* ═══ UTILS ═══ */
+.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}.mt20{margin-top:20px;}
+.mb8{margin-bottom:8px;}.mb12{margin-bottom:12px;}.mb16{margin-bottom:16px;}
+.gap8{gap:8px;}.gap12{gap:12px;}.gap16{gap:16px;}
+strong{font-weight:700;}
+
+/* ═══ PROJECT BRIEF ═══ */
+.brief-box{
+  background:var(--g900);border-radius:var(--r12);
+  padding:18px 20px;margin-bottom:14px;
+}
+.brief-label{font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.38);margin-bottom:8px;}
+.brief-text{font-family:'Courier New',monospace;font-size:11px;
+  color:var(--b200);line-height:1.75;white-space:pre-wrap;}
+
+/* responsive */
+@media(max-width:700px){
+  .g2,.g3,.g4,.core-grid{grid-template-columns:1fr;}
+  .hero{padding:24px 20px;}
+  .page-wrap{padding:20px 16px 60px;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <svg width="40" height="18" viewBox="0 0 54 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M32.63 4.8H26.54v.56c.29.03.51.05.73.1.23.05.4.12.52.23.36.3.35.87.35 1.88v7.07c0 .08 0 .17.01.25.01 1.41.02 3.22-1.9 3.2-.87-.01-1.77-.63-2.04-1.77h-.7c.3 1.9 1.31 3.2 3.77 3.2h.01c2.08 0 3.95-.96 3.94-4.22V7.64l-.001-.064c0-1.01 0-1.55.36-1.86.23-.2.42-.28 1.06-.34V4.8zm7 0h-6.09v.56c.64.06.83.16 1.06.36.29.25.34.65.35 1.34v.1c0 .18-.001.38.002.6v8.43c-.004.23-.003.43-.002.62l.002.077c-.01.7-.06 1.1-.35 1.35-.23.2-.42.28-1.06.34v.62h6.09l1.07-3.22h-.72c-.71 1.55-1.8 1.73-2.8 1.73-.82 0-1.36-.046-1.74-.3-.31-.2-.43-.72-.44-1.61V7.8l-.001-.064c0-1.01 0-1.55.36-1.85.23-.2.61-.27 1.24-.34V4.8zm4 0h6.09v.56c-.64.06-.83.16-1.06.36-.35.31-.35.87-.35 1.88v.064V16.2c.005.89.12 1.42.43 1.62.38.25.92.3 1.74.3 1 0 2.09-.18 2.8-1.73h.72l-1.07 3.22h-3.09-6.09v-.62c.64-.06.83-.16 1.06-.36.29-.25.34-.65.35-1.34l-.001-.067c-.001-.19-.001-.4.002-.62V7.78c-.004-.24-.003-.44-.002-.64l.002-.07c-.01-.7-.06-1.1-.35-1.35-.23-.2-.42-.28-1.06-.34V4.8z" fill="white"/><path d="M21.4 8.89c-.25-1.6-.73-3.23-1.47-4.7-.61-1.2-1.43-2.34-2.52-3.15C16.6.43 15.58.03 14.56.003V0h-.004c-.64.016-1.28.18-1.87.45-.39-.18-.8-.31-1.22-.38-.1-.018-.2-.034-.3-.045l-.001.001c-.118-.013-.235-.022-.353-.024H10.82c-.64.016-1.28.18-1.87.45C8.35.18 7.71.016 7.07.003V0H7.07c-1.02.025-2.04.43-2.85 1.03-1.09.81-1.9 1.95-2.51 3.16C.96 5.66.48 7.29.23 8.89.073 9.93 0 10.974 0 12h.001c-.001 1.026.073 2.07.233 3.11.247 1.6.724 3.23 1.473 4.7.612 1.2 1.428 2.34 2.514 3.15.81.61 1.83 1.01 2.85 1.03H7.07c.643-.016 1.284-.18 1.873-.45.388.178.8.308 1.218.382.1.018.2.034.3.045.118.013.235.022.353.024H10.82c.642-.016 1.283-.18 1.872-.45.59.271 1.23.434 1.873.45H14.56c1.02-.026 2.04-.43 2.85-1.034 1.087-.814 1.903-1.95 2.516-3.15.748-1.47 1.226-3.1 1.473-4.698.16-1.04.234-2.082.234-3.11h.001c.002-1.026-.072-2.07-.232-3.11z" fill="#DE0614"/></svg>
+    <div class="topbar-divider"></div>
+    <span class="topbar-title">Heartland AI Training Lab</span>
+  </div>
+  <div class="topbar-right">
+    <span class="session-badge">90 Min Session</span>
+    <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">
+      <span id="timerIcon">&#9654;</span>
+      <span id="timerDisplay">1:30:00</span>
+    </button>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tabnav" id="tabnav">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">
+    <span class="tab-num">1</span>Overview
+  </button>
+  <button class="tab-btn" onclick="switchTab('survey',this)">
+    <span class="tab-num">2</span>Survey Results
+  </button>
+  <button class="tab-btn" onclick="switchTab('aican',this)">
+    <span class="tab-num">3</span>What AI Can Be
+  </button>
+  <button class="tab-btn" onclick="switchTab('framework',this)">
+    <span class="tab-num">4</span>CORE Framework
+  </button>
+  <button class="tab-btn" onclick="switchTab('lab',this)">
+    <span class="tab-num">5</span>Lab: End-to-End
+  </button>
+  <button class="tab-btn" onclick="switchTab('prompts',this)">
+    <span class="tab-num">6</span>Prompt Library
+  </button>
+  <button class="tab-btn special" onclick="switchTab('claude',this)">
+    <span class="tab-num" style="background:var(--g900);color:var(--b300);">★</span>Coming Soon: Claude
+  </button>
+  <button class="tab-btn" onclick="switchTab('facilitator',this)">
+    <span class="tab-num">7</span>Facilitator Guide
+  </button>
+</div>
+
+<div class="page-wrap">
+
+<!-- ════════════════════════════════════════════════
+  TAB 1 — OVERVIEW
+════════════════════════════════════════════════ -->
+<div id="tab-overview" class="tab-page active">
+  <div class="hero">
+    <div class="hero-eye">JLL · Heartland PDS · AI Training Lab · 2026</div>
+    <div class="hero-title">We put the <span class="red">AI</span> in <strong>Heartland Training.</strong></div>
+    <div class="hero-sub">Built around your survey. Designed for your work. Grounded in JLL's global AI strategy. Yours for 90 minutes.</div>
+    <div class="hero-pills">
+      <span class="hero-pill">90 Minutes</span>
+      <span class="hero-pill">Built from Your Survey</span>
+      <span class="hero-pill">CORE Framework</span>
+      <span class="hero-pill">All Skill Levels</span>
+      <span class="hero-pill">Use It Monday</span>
+    </div>
+  </div>
+
+  <!-- JLL Strategy connection -->
+  <div class="strategy-strip mb16">
+    <div class="strategy-item">
+      <div class="strategy-item-label">Your learning today connects to</div>
+      <div class="strategy-item-val">JLL Global AI Strategy</div>
+    </div>
+    <div class="strategy-divider"></div>
+    <div class="strategy-item">
+      <div class="strategy-item-label">Supports</div>
+      <div class="strategy-item-val">PDS Operational Efficiency</div>
+    </div>
+    <div class="strategy-divider"></div>
+    <div class="strategy-item">
+      <div class="strategy-item-label">Frees time for</div>
+      <div class="strategy-item-val">People · Clients · Growth</div>
+    </div>
+    <div class="strategy-divider"></div>
+    <div class="strategy-item">
+      <div class="strategy-item-label">Expertise status</div>
+      <div class="strategy-item-val" style="color:var(--b300)">Stays 100% yours</div>
+    </div>
+  </div>
+
+  <!-- Why this matters to JLL -->
+  <div class="sec-eye">Why this matters</div>
+  <div class="sec-title">Your AI adoption is JLL strategy in action.</div>
+  <div class="sec-sub">This isn't a technology trend. It's a competitive capability — and it starts with you.</div>
+  <div class="accent-bar"></div>
+
+  <div class="g3 mb16">
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:22px;margin-bottom:8px">📈</div>
+        <div style="font-size:13px;font-weight:700;color:var(--g900);margin-bottom:6px">Individual adoption drives collective advantage</div>
+        <div style="font-size:12px;color:var(--g600);line-height:1.6">JLL's global AI strategy depends on practitioners like you building real skills. Every hour you save on admin is an hour you invest in client relationships, business development, and the work only <em>you</em> can do.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:22px;margin-bottom:8px">🏗️</div>
+        <div style="font-size:13px;font-weight:700;color:var(--g900);margin-bottom:6px">AI supports every phase of your work</div>
+        <div style="font-size:12px;color:var(--g600);line-height:1.6">From pre-construction through closeout — meeting minutes, status reports, RFP responses, risk summaries, client updates — AI is a force multiplier across the entire project lifecycle without replacing your judgment.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:22px;margin-bottom:8px">🤝</div>
+        <div style="font-size:13px;font-weight:700;color:var(--g900);margin-bottom:6px">More time for what matters most</div>
+        <div style="font-size:12px;color:var(--g600);line-height:1.6">The time AI saves isn't just efficiency — it's capacity. Capacity for deeper client conversations, stronger team development, more thoughtful business development, and the interpersonal work that builds lasting relationships.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session agenda -->
+  <div class="sec-eye mt20">Your next 90 minutes</div>
+  <div class="sec-title">A working session, not a lecture.</div>
+  <div class="sec-sub">No slides to sit through. Every minute is designed around what you told us in the survey.</div>
+  <div class="accent-bar"></div>
+
+  <div class="card mb16">
+    <div class="card-body" style="padding:0">
+      <table style="width:100%;border-collapse:collapse">
+        <tr style="background:var(--g900)">
+          <th style="padding:10px 14px;font-size:11px;color:rgba(255,255,255,.5);text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:.06em;width:15%">Time</th>
+          <th style="padding:10px 14px;font-size:11px;color:rgba(255,255,255,.5);text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:.06em">What happens</th>
+          <th style="padding:10px 14px;font-size:11px;color:rgba(255,255,255,.5);text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:.06em;width:20%">Tab</th>
+        </tr>
+        <tr><td style="padding:10px 14px;font-size:11.5px;color:var(--b500);font-weight:700;border-bottom:1px solid var(--g200)">0–5 min</td><td style="padding:10px 14px;font-size:12px;color:var(--g700);border-bottom:1px solid var(--g200)"><strong>We show you what you said</strong> — Your survey data. Your exact words.</td><td style="padding:10px 14px;font-size:11.5px;color:var(--g400);border-bottom:1px solid var(--g200)">Tab 2</td></tr>
+        <tr style="background:var(--b50)"><td style="padding:10px 14px;font-size:11.5px;color:var(--b500);font-weight:700;border-bottom:1px solid var(--g200)">5–22 min</td><td style="padding:10px 14px;font-size:12px;color:var(--g700);border-bottom:1px solid var(--g200)"><strong>What AI actually is — and who it can become for you</strong></td><td style="padding:10px 14px;font-size:11.5px;color:var(--g400);border-bottom:1px solid var(--g200)">Tab 3</td></tr>
+        <tr><td style="padding:10px 14px;font-size:11.5px;color:var(--b500);font-weight:700;border-bottom:1px solid var(--g200)">22–36 min</td><td style="padding:10px 14px;font-size:12px;color:var(--g700);border-bottom:1px solid var(--g200)"><strong>The CORE Framework + live demo</strong> — 4 parts. Every great prompt.</td><td style="padding:10px 14px;font-size:11.5px;color:var(--g400);border-bottom:1px solid var(--g200)">Tab 4</td></tr>
+        <tr style="background:var(--b50)"><td style="padding:10px 14px;font-size:11.5px;color:var(--b500);font-weight:700;border-bottom:1px solid var(--g200)">36–75 min</td><td style="padding:10px 14px;font-size:12px;color:var(--g700);border-bottom:1px solid var(--g200)"><strong>End-to-end lab</strong> — Real work. Real prompts. Multi-step scenario.</td><td style="padding:10px 14px;font-size:11.5px;color:var(--g400);border-bottom:1px solid var(--g200)">Tab 5</td></tr>
+        <tr><td style="padding:10px 14px;font-size:11.5px;color:var(--b500);font-weight:700;border-bottom:1px solid var(--g200)">75–85 min</td><td style="padding:10px 14px;font-size:12px;color:var(--g700);border-bottom:1px solid var(--g200)"><strong>Show &amp; tell</strong> — Groups share wins. We build your team prompt library.</td><td style="padding:10px 14px;font-size:11.5px;color:var(--g400);border-bottom:1px solid var(--g200)">—</td></tr>
+        <tr style="background:var(--b50)"><td style="padding:10px 14px;font-size:11.5px;color:var(--b500);font-weight:700">85–90 min</td><td style="padding:10px 14px;font-size:12px;color:var(--g700)"><strong>Toolkit + what's next</strong> — 10 prompts to take home. Claude preview.</td><td style="padding:10px 14px;font-size:11.5px;color:var(--g400)">Tabs 6 &amp; ★</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">💡</div>
+    <div class="alert-body">
+      <div class="alert-title">The core belief of this session</div>
+      AI doesn't replace the expertise you've built over years. It removes everything that gets in the way of applying it — so you can spend more time on clients, your team, and the work that only a skilled professional can do.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 2 — SURVEY RESULTS
+════════════════════════════════════════════════ -->
+<div id="tab-survey" class="tab-page">
+  <div class="hero">
+    <div class="hero-eye">Section 1 · 0–5 min</div>
+    <div class="hero-title"><strong>We heard you.</strong></div>
+    <div class="hero-sub">35 responses. Every one read. Every pain point built into today's session.</div>
+  </div>
+
+  <div class="g4 mb16">
+    <div class="stat-card"><div class="stat-num">91%</div><div class="stat-lbl">already using AI tools</div><div class="stat-sub">You don't need convincing</div></div>
+    <div class="stat-card" style="border-top-color:var(--b400)"><div class="stat-num">37%</div><div class="stat-lbl">blocked by: can't write prompts</div><div class="stat-sub">Today's entire focus</div></div>
+    <div class="stat-card" style="border-top-color:var(--b300)"><div class="stat-num">16</div><div class="stat-lbl">named emails &amp; meeting minutes as #1 pain</div><div class="stat-sub">Lab scenario #1</div></div>
+    <div class="stat-card" style="border-top-color:var(--g400)"><div class="stat-num">46%</div><div class="stat-lbl">want "all of the above" confidence builders</div><div class="stat-sub">Ready for everything</div></div>
+  </div>
+
+  <div class="g2 mb16">
+    <div>
+      <div class="sec-eye">AI Experience Level</div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Use AI regularly</span><span class="bar-val">17</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Use AI occasionally</span><span class="bar-val">14</span></div><div class="bar-track"><div class="bar-fill" style="width:82%;background:var(--b400)"></div></div></div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Rarely use them</span><span class="bar-val">3</span></div><div class="bar-track"><div class="bar-fill" style="width:18%;background:var(--b300)"></div></div></div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Never used one</span><span class="bar-val">1</span></div><div class="bar-track"><div class="bar-fill" style="width:6%;background:var(--g400)"></div></div></div>
+    </div>
+    <div>
+      <div class="sec-eye">Biggest Blocker</div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Can't write good prompts</span><span class="bar-val">12</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Something else</span><span class="bar-val">9</span></div><div class="bar-track"><div class="bar-fill" style="width:75%;background:var(--b400)"></div></div></div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Outputs not reliable enough</span><span class="bar-val">4</span></div><div class="bar-track"><div class="bar-fill" style="width:33%;background:var(--b300)"></div></div></div>
+      <div class="bar-row"><div class="bar-head"><span class="bar-label">Not sure what it can do</span><span class="bar-val">3</span></div><div class="bar-track"><div class="bar-fill" style="width:25%;background:var(--g400)"></div></div></div>
+    </div>
+  </div>
+
+  <div class="g2 mb16">
+    <div class="quote-card">
+      <div class="quote-text">"Meeting minutes was the worst thing I had to do with my time. JLL GPT saves me tremendously."</div>
+      <div class="quote-source">— Your teammate, Survey May 2026</div>
+    </div>
+    <div class="quote-card ocean">
+      <div class="quote-text">"I don't know how to write good prompts — and it's holding me back from using AI the way I want to."</div>
+      <div class="quote-source">— 12 of 35 teammates said something like this. Today we fix it.</div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">&#9432;</div>
+    <div class="alert-body">
+      <div class="alert-title">A note on JLL GPT</div>
+      Some of you flagged JLL GPT's limitations — no memory between sessions, context cuts off, outputs can be inconsistent. Those are valid and real. The CORE framework you'll learn today is designed to work around those constraints — and it's the same method that will make you <em>immediately</em> better when Claude arrives at JLL.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 3 — WHAT AI CAN BE
+════════════════════════════════════════════════ -->
+<div id="tab-aican" class="tab-page">
+  <div class="hero">
+    <div class="hero-eye">Section 2 · 5–22 min</div>
+    <div class="hero-title"><strong>Who can AI become</strong> for the <span class="accent">Heartland team?</span></div>
+    <div class="hero-sub">AI isn't one thing. It's a different partner depending on what you need in the moment — and it's available 24/7, never in a meeting, and never too busy.</div>
+  </div>
+
+  <!-- The roles AI plays -->
+  <div class="sec-eye">The many roles of AI</div>
+  <div class="sec-title">AI is whoever you need right now.</div>
+  <div class="sec-sub">Each role below is something AI can genuinely do for your work — not theoretical, not future-state. Today.</div>
+  <div class="accent-bar"></div>
+
+  <div class="g3 mb20" style="grid-template-columns:repeat(3,1fr)">
+    <div class="role-card" style="border-top-color:var(--b500)">
+      <div class="role-title">Thought Partner</div>
+      <div class="role-desc">When you're stuck on how to approach a problem, AI helps you think it through — surfacing angles you hadn't considered, challenging assumptions, stress-testing ideas before you commit to them.</div>
+      <div class="role-example">"Help me think through how to structure this GMP conversation with a client who is already frustrated."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--b400)">
+      <div class="role-title">Brainstorm Partner</div>
+      <div class="role-desc">Need five ways to frame a risk, ten agenda ideas for a kickoff, or three approaches to scope reduction? AI generates options fast so you can evaluate, not invent.</div>
+      <div class="role-example">"Give me 5 different ways I could position a 3-month schedule delay to a client who is already concerned."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--b300)">
+      <div class="role-title">First Draft Creator</div>
+      <div class="role-desc">The hardest part of writing is starting. AI drafts in seconds — emails, reports, meeting minutes, proposals — giving you something to react to and improve rather than a blank page to fill.</div>
+      <div class="role-example">"Draft a weekly status report from these bullet points. Format for a non-technical client."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--g600)">
+      <div class="role-title">Review Copilot</div>
+      <div class="role-desc">Paste a document, an email, or a proposal and ask AI to check it — for tone, gaps, jargon, missing information, or whether it actually answers the client's question.</div>
+      <div class="role-example">"Review this client email. Does it bury the lead? Is the ask clear? What would a client think when they read it?"</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--g500)">
+      <div class="role-title">Simplifier / Translator</div>
+      <div class="role-desc">Construction and project management are full of jargon that confuses owners. AI rewrites technical content into plain language instantly — for board decks, client summaries, or executive updates.</div>
+      <div class="role-example">"Rewrite this for a CFO who has no construction background but needs to approve a budget amendment."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--g400)">
+      <div class="role-title">Research Assistant</div>
+      <div class="role-desc">Need a quick summary of a contract section, a comparison of two approaches, or background on an unfamiliar building system? AI synthesizes and summarizes so you don't have to read everything.</div>
+      <div class="role-example">"Summarize the key risks in this owner-contractor agreement language. Flag anything unusual."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--b500)">
+      <div class="role-title">Professor / Explainer</div>
+      <div class="role-desc">When you need to understand something quickly — a new regulation, an unfamiliar construction method, a financial concept — AI explains it at exactly the level you need, as many times as it takes.</div>
+      <div class="role-example">"Explain embodied carbon requirements in plain terms. I need to brief a client who is asking about sustainability."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--b400)">
+      <div class="role-title">Template Builder</div>
+      <div class="role-desc">Describe a document you create repeatedly and AI builds a reusable template with fill-in-the-blank sections — meeting agendas, status reports, RFP responses, handover checklists.</div>
+      <div class="role-example">"Build a weekly owner's representative status report template I can reuse every Friday in under 5 minutes."</div>
+    </div>
+    <div class="role-card" style="border-top-color:var(--b300)">
+      <div class="role-title">Rehearsal Partner</div>
+      <div class="role-desc">Preparing for a difficult conversation, a board presentation, or a client challenge? AI plays the other side — pushes back, asks the hard questions, and helps you prepare better answers.</div>
+      <div class="role-example">"Play the role of a skeptical client who is about to push back on our GMP overrun. I'll practice my response."</div>
+    </div>
+  </div>
+
+  <!-- What AI does NOT replace -->
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="card-header" style="background:var(--b500)">AI is excellent at</div>
+      <div class="card-body" style="padding:14px 16px">
+        <ul style="list-style:none">
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--b500);font-weight:700">></span>Drafting, rewriting, summarizing text</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--b500);font-weight:700">></span>Structuring messy notes and data</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--b500);font-weight:700">></span>Generating options and alternatives</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--b500);font-weight:700">></span>Translating complexity into plain language</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--b500);font-weight:700">></span>Building reusable templates and frameworks</li>
+          <li style="display:flex;gap:8px;padding:5px 0;font-size:12px;color:var(--g600)"><span style="color:var(--b500);font-weight:700">></span>Responding instantly in any tone or format</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" style="background:var(--g700)">What still needs you</div>
+      <div class="card-body" style="padding:14px 16px">
+        <ul style="list-style:none">
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--g500);font-weight:700">></span>Judgment calls and final decisions</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--g500);font-weight:700">></span>Client relationships and trust</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--g500);font-weight:700">></span>Knowing when the output is wrong</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--g500);font-weight:700">></span>Real-time project data and context</li>
+          <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--g200);font-size:12px;color:var(--g600)"><span style="color:var(--g500);font-weight:700">></span>Professional accountability and sign-off</li>
+          <li style="display:flex;gap:8px;padding:5px 0;font-size:12px;color:var(--g600)"><span style="color:var(--g500);font-weight:700">></span>The instinct you've built over your career</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="dark-card card" style="padding:22px 26px;text-align:center">
+    <div style="font-size:17px;font-weight:300;color:white;margin-bottom:6px">AI removes the drag. <strong style="color:var(--b300)">You still own the work.</strong></div>
+    <div style="font-size:12.5px;color:rgba(255,255,255,.5);max-width:560px;margin:0 auto;line-height:1.6">
+      The time you save on meeting minutes, status reports, and first drafts doesn't disappear. It becomes time with clients. Time developing your team. Time on the strategic work that separates a good project manager from a great one.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 4 — CORE FRAMEWORK
+════════════════════════════════════════════════ -->
+<div id="tab-framework" class="tab-page">
+  <div class="hero">
+    <div class="hero-eye">Section 3 · 22–36 min</div>
+    <div class="hero-title"><strong>The only framework you need.</strong></div>
+    <div class="hero-sub">Four letters. Every great prompt has all four. Learn it in 2 minutes. Use it forever.</div>
+  </div>
+
+  <div class="core-grid mb16">
+    <div class="core-card">
+      <div class="core-letter" style="color:var(--b500)">C</div>
+      <div class="core-body">
+        <div class="core-word" style="color:var(--b500)">CONTEXT</div>
+        <div class="core-desc">Give it your real situation</div>
+        <div class="core-ex">"Project: Heartland, $52M GMP, steel pricing 12% over. Here are my raw notes: [paste]"</div>
+      </div>
+    </div>
+    <div class="core-card">
+      <div class="core-letter" style="color:var(--b400)">O</div>
+      <div class="core-body">
+        <div class="core-word" style="color:var(--b400)">OBJECTIVE</div>
+        <div class="core-desc">Tell it exactly what to do</div>
+        <div class="core-ex">"Write professional meeting minutes. Include decisions, action items with owners and due dates."</div>
+      </div>
+    </div>
+    <div class="core-card">
+      <div class="core-letter" style="color:var(--b300)">R</div>
+      <div class="core-body">
+        <div class="core-word" style="color:var(--b300)">ROLE</div>
+        <div class="core-desc">Tell it who to be</div>
+        <div class="core-ex">"You are a senior JLL project manager specializing in commercial construction..."</div>
+      </div>
+    </div>
+    <div class="core-card">
+      <div class="core-letter" style="color:var(--g500)">E</div>
+      <div class="core-body">
+        <div class="core-word" style="color:var(--g500)">EXAMPLE</div>
+        <div class="core-desc">Show it what good looks like</div>
+        <div class="core-ex">"Format exactly like this: [paste an example or describe the structure you want]"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-strip mb16">
+    <div><strong>Works in JLL GPT today. Works in Claude when it arrives. Works in every AI tool forever.</strong> Learn this once — it never expires.</div>
+  </div>
+
+  <!-- Before / After Demo -->
+  <div class="sec-eye mt20">See the difference</div>
+  <div class="sec-title">Same request. Completely different results.</div>
+  <div class="accent-bar"></div>
+
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="card-header" style="background:var(--g500)">Weak prompt</div>
+      <div class="card-body">
+        <div style="background:var(--g50);border:1px solid var(--g200);border-radius:var(--r8);padding:10px 12px;font-style:italic;font-size:12.5px;color:var(--g600);margin-bottom:12px">"Summarize my meeting notes"</div>
+        <div style="font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">What you get</div>
+        <ul style="list-style:none">
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--g500)"><span>></span>Vague, generic bullet list</li>
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--g500)"><span>></span>No owners, no due dates</li>
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--g500)"><span>></span>Misses half the context</li>
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--g500)"><span>></span>Has to be rewritten anyway</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" style="background:var(--b500)">CORE prompt</div>
+      <div class="card-body">
+        <div style="background:var(--b50);border:1px solid var(--b200);border-radius:var(--r8);padding:10px 12px;font-family:'Courier New',monospace;font-size:10.5px;color:var(--g700);line-height:1.7;margin-bottom:12px">[C] Project: Heartland, steel pricing issue.
+[O] Write professional meeting minutes.
+[R] You are a senior PM at JLL.
+[E] Format: decisions + [Task–Owner–Date]</div>
+        <div style="font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">What you get</div>
+        <ul style="list-style:none">
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--b500)"><span>></span>Polished minutes, ready to send</li>
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--b500)"><span>></span>Decisions clearly numbered</li>
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--b500)"><span>></span>Action items with owners + dates</li>
+          <li style="display:flex;gap:7px;padding:4px 0;font-size:12px;color:var(--b500)"><span>></span>Done in under 2 minutes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- JLL GPT memory tip -->
+  <div class="sec-eye mt20">JLL GPT: The one thing you must do first</div>
+  <div class="card ocean-card mb16">
+    <div class="card-body">
+      <div style="font-size:14px;font-weight:700;color:var(--b600);margin-bottom:8px">Always paste the Project Brief first — every session.</div>
+      <div style="font-size:12.5px;color:var(--g600);line-height:1.6;margin-bottom:12px">JLL GPT has no memory between sessions. Every time you start a new conversation, it has forgotten everything. The workaround: paste a short project brief at the very top of your first message. This is the single habit that separates good JLL GPT outputs from great ones.</div>
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+PROJECT BRIEF (paste this at the top of every JLL GPT session):
+Project: Heartland Regional HQ
+Client: Heartland Partners (regional commercial real estate owner)
+Type: 180,000 SF commercial office renovation, Midwest Region
+Phase: Design development / GMP negotiation
+JLL Role: Owner's Representative / Project Manager
+Key issues: Steel and MEP pricing +12%, permit delay 6 weeks, 90-day compression request
+Team: Sarah K. (PM), Marcus T. (Cost), Dev P. (Scheduler), Linda R. (Client)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 5 — LAB: END-TO-END
+════════════════════════════════════════════════ -->
+<div id="tab-lab" class="tab-page">
+  <div class="hero">
+    <div class="hero-eye">Section 4 · 36–75 min</div>
+    <div class="hero-title"><strong>End-to-end lab.</strong> <span class="accent">Your turn.</span></div>
+    <div class="hero-sub">This isn't isolated prompts. It's a full workflow — the way you'd actually use AI on a real project. Follow the steps, review at each decision point, and decide how to proceed.</div>
+  </div>
+
+  <div class="info-strip">
+    <div><strong>Before anything else:</strong> Open JLL GPT. Copy the Project Brief from Tab 4 and paste it as your very first message. Then come back here and start Step 1.</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-banner mb12" style="background:var(--b500)">
+    <div class="step-num-circle">1</div>
+    <div>
+      <div>Meeting Minutes — From chaos to client-ready</div>
+      <div class="step-meta">~10 minutes · Paste the Project Brief first · All levels can start here</div>
+    </div>
+  </div>
+
+  <div class="card mb8">
+    <div class="card-body">
+      <div style="font-size:12.5px;color:var(--g600);margin-bottom:10px;line-height:1.55">You just finished a tense 45-minute GMP kickoff meeting. Here are your rough notes. Use the CORE framework to turn them into polished meeting minutes.</div>
+      <div class="prompt-box">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Project: Heartland Regional HQ, $52M GMP target. Today's meeting:
+    GMP kickoff with client Linda R., GC Midwest Commercial Builders, JLL team.
+    My rough notes:
+    - steel and MEP pricing issue discussed - marcus says 12% over estimate
+    - linda concerned - asked if we can cut scope - NOT an option per sarah
+    - dev presented schedule - 6 week permit delay confirmed
+    - linda wants to know timeline impact - dev says adds 3 weeks minimum
+    - action: marcus to get 3 updated pricing bids by friday EOD
+    - action: dev to model 90-day compression scenario with cost impact
+    - action: sarah to draft value engineering options by next thursday
+    - next meeting: thursday 2pm same attendees
+
+[O] Write professional meeting minutes from these rough notes.
+    Include: Project name, date (today), attendees (Sarah K., Marcus T.,
+    Dev P., Linda R.), top decisions made (numbered), all action items
+    formatted as [Task] | [Owner] | [Due Date]
+
+[R] You are a senior JLL Owner's Representative with 15 years of
+    commercial construction experience.
+
+[E] Format exactly like this:
+    DECISIONS: 1. [decision]. 2. [decision].
+    ACTION ITEMS:
+    - [task] | [owner] | [date]</div>
+    </div>
+  </div>
+
+  <div class="write-space">
+    <div class="write-label">Paste your AI output here — or note what worked and what didn't</div>
+    <textarea class="write-input" placeholder="What did the AI produce? How close was it? What would you change?"></textarea>
+  </div>
+
+  <div class="decision-box">
+    <div class="decision-title">Decision Point — What do you want to do next?</div>
+    <div style="font-size:12.5px;color:var(--g600);margin-bottom:8px">Review your output with your group. Is it good enough to send? Does it need refinement? Or do you want to build on it?</div>
+    <div class="decision-opts">
+      <div class="decision-opt" onclick="showStep('step1a')">The output is solid — show me Step 2 (client email)</div>
+      <div class="decision-opt" onclick="showStep('step1b')">I want to refine this output first</div>
+      <div class="decision-opt" onclick="showStep('step1c')">I'm advanced — take me to Step 3 (risk analysis)</div>
+    </div>
+  </div>
+
+  <!-- STEP 1A: Refine -->
+  <div id="step1b" style="display:none" class="card mb12 ocean-card">
+    <div class="card-body">
+      <div style="font-size:13px;font-weight:700;color:var(--b600);margin-bottom:8px">Refinement prompt — follow up in the same JLL GPT conversation</div>
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+The minutes look good but I need two changes:
+1. Make the action items section more prominent — use bold headers
+2. Add a one-paragraph executive summary at the top that Linda R.
+   (our client) could forward to her CFO. Plain language, no jargon,
+   under 60 words.</div>
+      <div class="prompt-tip">After the refinement, continue to Step 2 when ready.</div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step1a" style="display:none">
+    <div class="step-banner mb12" style="background:var(--b400)">
+      <div class="step-num-circle">2</div>
+      <div>
+        <div>Client Email — Delivering difficult news professionally</div>
+        <div class="step-meta">~12 minutes · Stay in the same JLL GPT conversation · Build on Step 1</div>
+      </div>
+    </div>
+
+    <div class="card mb8">
+      <div class="card-body">
+        <div style="font-size:12.5px;color:var(--g600);margin-bottom:10px;line-height:1.55">Now you need to send Linda a professional email explaining the budget situation. You already have the meeting minutes context. Ask AI to draft the email in the same conversation.</div>
+        <div class="prompt-box">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Following up on the GMP kickoff we just documented. Linda R. needs a
+    professional email explaining the steel pricing situation. She is the
+    client — sophisticated businessperson but not a construction expert.
+    She will likely forward this to her CFO.
+
+[O] Draft a professional email from Sarah K. (JLL PM) to Linda R.
+    Cover: (1) acknowledge the steel pricing issue directly — no
+    burying the lead, (2) state the $3.2M budget impact clearly,
+    (3) present exactly TWO options with pros and cons of each,
+    (4) request a 30-minute call this week to decide.
+
+[R] You are a senior JLL Owner's Representative — confident,
+    solution-focused, protective of the client relationship.
+    NOT apologetic. A partner delivering hard news well.
+
+[E] Length: 4 short paragraphs max. Subject line included.
+    Tone: "We have a situation, here's what we're doing about it."
+    No construction jargon. Clear ask at the end.</div>
+      </div>
+    </div>
+
+    <div class="write-space">
+      <div class="write-label">Step 2 output — paste here or note your observations</div>
+      <textarea class="write-input" placeholder="How did the AI handle the difficult tone? What would you adjust before sending?"></textarea>
+    </div>
+
+    <div class="decision-box">
+      <div class="decision-title">Decision Point — What's next?</div>
+      <div style="font-size:12.5px;color:var(--g600);margin-bottom:8px">You now have meeting minutes AND a client email drafted. What does your group want to tackle?</div>
+      <div class="decision-opts">
+        <div class="decision-opt" onclick="showStep('step3')">Take me to Step 3 — budget risk analysis</div>
+        <div class="decision-opt" onclick="showStep('stepbonus')">Skip ahead — I want the Bonus Activity</div>
+        <div class="decision-opt">We got what we needed — head to debrief</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div id="step3" style="display:none">
+    <div class="step-banner mb12" style="background:var(--g600)">
+      <div class="step-num-circle">3</div>
+      <div>
+        <div>Budget Risk Analysis — From numbers to a leadership narrative</div>
+        <div class="step-meta">~15 minutes · Advanced · Build on the full Heartland project context</div>
+      </div>
+    </div>
+
+    <div class="card mb8">
+      <div class="card-body">
+        <div style="font-size:12.5px;color:var(--g600);margin-bottom:10px;line-height:1.55">You have the meeting minutes, the client email drafted, and now leadership needs a budget risk summary. One prompt — structured output with flags, talking points, and value engineering ideas.</div>
+        <div class="prompt-box">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Heartland Regional HQ, $52M GMP target.
+    Current budget status:
+    - Structural steel: $8.2M budgeted / $9.5M current (+$1.3M)
+    - Interior fit-out: $4.1M budgeted / $4.3M current (+$200K)
+    - MEP systems: $12.4M budgeted / $12.1M current (-$300K)
+    - GC general conditions: $3.8M budgeted / $4.6M current (+$800K)
+    - Roofing and envelope: $2.9M budgeted / $2.95M current (+$50K)
+    - Contingency remaining: $1.8M (started at $3.2M)
+
+[O] Produce a budget risk summary with three sections:
+    1. RISK FLAGS: Label each line item RED (likely over), YELLOW
+       (watch), or GREEN (on track) with a one-line reason
+    2. TALKING POINTS: 3 things I can say to the client that
+       acknowledge the situation without causing panic
+    3. VALUE ENGINEERING: One realistic VE idea for each RED item
+
+[R] You are a JLL cost manager and Owner's Representative with
+    deep experience managing owner expectations on budget overruns.
+
+[E] Use this format:
+    RISK FLAGS:
+    - [item]: [RED/YELLOW/GREEN] — [one-line reason]
+    TALKING POINTS:
+    1. [point]
+    VALUE ENGINEERING IDEAS:
+    - [RED item]: [VE option]</div>
+      </div>
+    </div>
+
+    <div class="write-space">
+      <div class="write-label">Step 3 output</div>
+      <textarea class="write-input" placeholder="What risk flags did AI identify? Do you agree with the assessment? Would you use any of the VE ideas?"></textarea>
+    </div>
+  </div>
+
+  <!-- DEBRIEF -->
+  <div class="debrief-card mt16 mb16">
+    <div class="debrief-title">Group Debrief — What did you discover?</div>
+    <div class="debrief-q">What was the most surprising thing AI produced — better or worse than you expected?</div>
+    <div class="debrief-q">What did you have to fix or adjust — and what does that tell you about how to prompt better next time?</div>
+    <div class="debrief-q">Where in your actual workday could you use this exact workflow this week?</div>
+    <div class="debrief-q">What would you need to feel confident using AI on a real project deliverable?</div>
+  </div>
+
+  <!-- BONUS -->
+  <div id="stepbonus" class="bonus-box">
+    <div class="bonus-title">Bonus Activity: Solve a Real Problem</div>
+    <div class="bonus-sub">Think of one problem you've always wanted to solve — with a client, a teammate, a part of your role, anything. Describe it below and we'll build a prompt for it together, right now.</div>
+    <div class="bonus-prompt-area">
+<button class="copy-btn" onclick="copyPrompt(this)" style="background:rgba(255,255,255,.1)">Copy base prompt</button>
+I have a recurring challenge in my work:
+[DESCRIBE YOUR PROBLEM — be as specific as possible]
+
+I've tried:
+[What have you already attempted?]
+
+The ideal outcome would be:
+[What would "solved" look like?]
+
+Using the CORE framework, help me build a reusable prompt I can
+use to tackle this problem with AI — and give me 3 specific ways
+AI could help me approach this differently.</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:10px">Fill in the [BRACKETS] with your real situation, then paste into JLL GPT.</div>
+    <textarea class="bonus-input" id="bonusProblem" placeholder="What's your problem? Describe it here — be specific. The more real, the better the output..."></textarea>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="bonus-btn" onclick="buildBonusPrompt()">Build my prompt</button>
+      <span style="font-size:11px;color:rgba(255,255,255,.35)">This generates a CORE-formatted prompt based on what you describe</span>
+    </div>
+    <div class="bonus-output" id="bonusOutput"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 6 — PROMPT LIBRARY
+════════════════════════════════════════════════ -->
+<div id="tab-prompts" class="tab-page">
+  <div class="hero">
+    <div class="hero-eye">Section 5 · Take-home toolkit</div>
+    <div class="hero-title"><strong>Your prompt library.</strong></div>
+    <div class="hero-sub">10 copy-paste prompts for the tasks that eat your time. Replace anything in [BRACKETS] with your real information.</div>
+  </div>
+
+  <div class="info-strip">
+    <div><strong>How to use these:</strong> Always start your JLL GPT session by pasting the Project Brief (Tab 4). Then paste any prompt below, replace [BRACKETS], and iterate from there with plain-language follow-ups.</div>
+  </div>
+
+  <div class="prompt-category">Emails</div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-basic">Basic</span><span class="prompt-entry-title">Quick project update email</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Project: [PROJECT NAME]. This week: [PASTE 3-5 BULLET POINTS]
+[O] Write a brief weekly update email to [CLIENT NAME].
+    Format: subject line + 2 short paragraphs + one clear next step.
+    Under 150 words total.
+[R] You are a JLL project manager.
+[E] Tone: professional, reassuring, concise — like a trusted advisor.</div>
+    </div>
+  </div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-int">Intermediate</span><span class="prompt-entry-title">Delivering bad news professionally</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Project: [PROJECT]. Issue: [DESCRIBE THE PROBLEM in 1-2 sentences].
+    Impact: [budget / schedule / scope — which and how much]
+[O] Write an email to [CLIENT NAME] that: acknowledges the issue directly
+    (no burying the lead), presents [NUMBER] clear options, requests a
+    decision by [DATE], closes with an offer to discuss.
+[R] Senior JLL Owner's Representative — confident partner, not nervous vendor.
+[E] Under 200 words. 4 short paragraphs max. Subject line included.</div>
+    </div>
+  </div>
+
+  <div class="prompt-category">Meeting Minutes</div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-basic">Basic</span><span class="prompt-entry-title">Meeting minutes from rough notes</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Project: [NAME] | Date: [DATE] | Attendees: [NAMES AND ROLES]
+    My raw notes: [PASTE YOUR NOTES HERE]
+[O] Convert my rough notes into polished meeting minutes.
+    Format: Summary (2 sentences) | Decisions (numbered list) |
+    Action Items: [Task] | [Owner] | [Due Date] | Next meeting: [DATE]
+[R] Professional project manager.
+[E] Clean, formal but readable. No filler sentences.</div>
+    </div>
+  </div>
+
+  <div class="prompt-category">Reports &amp; Analysis</div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-int">Intermediate</span><span class="prompt-entry-title">Weekly status report</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] Project: [NAME]. This week's data: [PASTE RAW UPDATES]
+[O] Write a weekly project status report with these exact sections:
+    1. Overall Health: [Green/Yellow/Red + one-sentence reason]
+    2. Progress This Week: [3 bullet points]
+    3. Issues & Risks: [table: Issue | Impact | Mitigation | Owner]
+    4. Next 2 Weeks: [key milestones]
+    5. Client Decisions Needed: [list]
+[R] JLL Owner's Representative.
+[E] Professional, scannable. Leadership should understand it in 90 seconds.</div>
+    </div>
+  </div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-adv">Advanced</span><span class="prompt-entry-title">Executive summary for leadership</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] [PASTE YOUR DETAILED REPORT OR NOTES HERE]
+[O] Rewrite this as a 1-paragraph executive summary for a senior leader
+    who has 30 seconds. Rules: no jargon, lead with the most important
+    thing, if there's a problem state it immediately then give the
+    solution, end with the one thing you need from them.
+[R] Senior JLL project manager summarizing for a C-suite audience.
+[E] Under 100 words. One paragraph. Crystal clear ask at the end.</div>
+    </div>
+  </div>
+
+  <div class="prompt-category">Client &amp; Business Development</div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-int">Intermediate</span><span class="prompt-entry-title">RFP response section</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] RFP question: "[PASTE THE QUESTION]"
+    Our relevant experience: [PASTE 2-3 BULLET POINTS]
+[O] Write a 250-word response to this RFP question.
+    Open with our philosophy, not a list of services.
+    Include 1 specific approach or differentiator.
+    Close with a client-benefit statement.
+[R] Senior JLL PM with 15 years of [SECTOR] experience.
+[E] Avoid: "world-class", "best-in-class", "synergies", "leverage".
+    Tone: experienced, specific, confident — not salesy.</div>
+    </div>
+  </div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-basic">Basic</span><span class="prompt-entry-title">Translate jargon into plain language</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] [PASTE YOUR TECHNICAL TEXT HERE]
+[O] Rewrite this in plain language for a client who is smart but
+    has no construction background. Keep the meaning exactly the same.
+    Remove all jargon. Under [WORD COUNT].
+[R] JLL communications specialist.
+[E] If you removed a technical term, replace it with a plain English
+    phrase that a business executive would understand immediately.</div>
+    </div>
+  </div>
+
+  <div class="prompt-category">Brainstorm &amp; Strategy</div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-adv">Advanced</span><span class="prompt-entry-title">Brainstorm with a thought partner</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+[C] I'm working through this challenge: [DESCRIBE YOUR SITUATION]
+    What I've already considered: [YOUR THOUGHTS SO FAR]
+[O] Act as a strategic thought partner. Don't just agree with me —
+    push back on my assumptions, surface perspectives I'm missing,
+    and give me 3-5 genuinely different options for how to approach this.
+[R] Senior advisor who has seen this type of situation before and
+    isn't afraid to challenge conventional thinking.
+[E] Give me options, not just affirmation. End with the one question
+    I should be asking that I probably haven't asked yet.</div>
+    </div>
+  </div>
+
+  <div class="prompt-category">Build Your Own</div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-adv">Advanced</span><span class="prompt-entry-title">Build your personal reusable template</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+I am a [YOUR TITLE] at JLL working on [TYPE OF PROJECTS].
+My most time-consuming repetitive task is: [YOUR TASK]
+
+Build me a reusable CORE prompt template I can use every week for this.
+It should: have clear [FILL-IN-THE-BLANK] sections, always produce a
+consistent format, include a usage example, take under 2 minutes to fill.
+
+After the template, give me 3 ways to make the output even better.</div>
+      <div class="prompt-tip">This is your ultimate take-home. Specific to YOUR role = something you actually use every week.</div>
+    </div>
+  </div>
+
+  <div class="prompt-entry">
+    <div class="prompt-entry-head"><span class="level-badge lv-fun">Fun</span><span class="prompt-entry-title">Roast my meeting notes</span></div>
+    <div class="prompt-entry-body">
+      <div class="prompt-box" style="font-size:11px">
+<button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+Roast my meeting notes like a frustrated senior PM who has seen everything.
+Be funny, a little sarcastic, and point out everything vague, missing,
+or useless. Then immediately write the professional version.
+
+My notes: [PASTE YOUR WORST MEETING NOTES]
+
+Keep it office-appropriate!</div>
+      <div class="prompt-tip">The contrast between the roast and the polished version shows exactly why context matters in prompts.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 7 — COMING SOON: CLAUDE
+════════════════════════════════════════════════ -->
+<div id="tab-claude" class="tab-page">
+  <div class="coming-soon-hero">
+    <div style="position:relative">
+      <div class="coming-badge"><div class="pulse-dot"></div>Coming to JLL</div>
+      <div class="hero-title" style="font-size:32px;margin-bottom:8px">Meet <strong>Claude.</strong></div>
+      <div class="hero-sub" style="font-size:14.5px;max-width:600px">Anthropic's AI — the tool that built this training session — is coming to JLL. Here's what it means for your work, how it compares to JLL GPT, and why the CORE skills you're learning today transfer directly.</div>
+      <div class="hero-pills">
+        <span class="hero-pill">Built by Anthropic</span>
+        <span class="hero-pill">Longer context window</span>
+        <span class="hero-pill">Stronger reasoning</span>
+        <span class="hero-pill">Better instruction-following</span>
+        <span class="hero-pill">Same CORE prompting skills</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- What is Claude -->
+  <div class="sec-eye">What is Claude?</div>
+  <div class="sec-title">The AI that's leading the way for professional work.</div>
+  <div class="sec-sub">Claude is built by Anthropic with a specific focus on being helpful, harmless, and honest — designed for the kinds of complex, nuanced, professional tasks that define your work.</div>
+  <div class="accent-bar"></div>
+
+  <div class="g3 mb20">
+    <div class="capability-card">
+      <div class="cap-label">What makes it different</div>
+      <div class="cap-title">Built for complex reasoning</div>
+      <ul class="cap-list">
+        <li><div class="cap-dot"></div>Handles much longer documents and conversations without losing context</li>
+        <li><div class="cap-dot"></div>Follows nuanced, multi-part instructions more reliably</li>
+        <li><div class="cap-dot"></div>Less likely to hallucinate or confidently give wrong answers</li>
+        <li><div class="cap-dot"></div>Better at maintaining a consistent tone and voice across long outputs</li>
+      </ul>
+    </div>
+    <div class="capability-card">
+      <div class="cap-label">Best uses for your work</div>
+      <div class="cap-title">Where Claude shines</div>
+      <ul class="cap-list">
+        <li><div class="cap-dot"></div>Long-form documents — full project narratives, RFP packages, reports</li>
+        <li><div class="cap-dot"></div>Complex analysis — multi-factor risk assessments, budget reviews</li>
+        <li><div class="cap-dot"></div>Sensitive communication — difficult client conversations, escalations</li>
+        <li><div class="cap-dot"></div>Iterative refinement — going back and forth to get exactly what you need</li>
+      </ul>
+    </div>
+    <div class="capability-card">
+      <div class="cap-label">Your advantage</div>
+      <div class="cap-title">CORE works everywhere</div>
+      <ul class="cap-list">
+        <li><div class="cap-dot"></div>Every CORE skill you learn today works in Claude immediately</li>
+        <li><div class="cap-dot"></div>Your prompt library transfers — same format, better results</li>
+        <li><div class="cap-dot"></div>The people who are already fluent when Claude arrives will be ahead</li>
+        <li><div class="cap-dot"></div>You're already building the skills that matter most for AI-capable teams</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Side by side comparison -->
+  <div class="sec-eye mt8">Head-to-head comparison</div>
+  <div class="sec-title">JLL GPT vs. Claude — what's different, what's the same.</div>
+  <div class="sec-sub">Both are valuable. Knowing when to use each is the emerging professional skill.</div>
+  <div class="accent-bar"></div>
+
+  <div class="card mb20">
+    <div class="card-body" style="padding:0">
+      <table class="compare-table">
+        <thead>
+          <tr style="background:var(--g900)">
+            <th style="color:rgba(255,255,255,.5);width:28%">Capability</th>
+            <th style="color:white;width:36%">JLL GPT (Today)</th>
+            <th style="color:var(--b300);width:36%">Claude (Coming Soon)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-weight:700;color:var(--g700)">Context / Memory</td><td class="td-good">No memory between sessions. Use the Project Brief workaround.</td><td class="td-win">Longer context window. Holds more of your conversation without losing track.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">Instruction-following</td><td class="td-good">Good for clear, single-step requests. Can drift on complex multi-part prompts.</td><td class="td-win">Stronger at following nuanced, multi-part instructions reliably across long outputs.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">Document length</td><td class="td-good">Good for typical emails and reports. Struggles with very long documents.</td><td class="td-win">Handles full contracts, long reports, and multi-document analysis more reliably.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">Tone control</td><td class="td-good">Works well with clear tone instructions.</td><td class="td-win">Maintains consistent tone across longer documents and revisions more naturally.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">Sensitive topics</td><td class="td-good">Functional for most professional content.</td><td class="td-win">Specifically designed for nuanced, professionally sensitive content. Less likely to be unhelpful or overly cautious.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">JLL integration</td><td class="td-win">Available today. Integrated into JLL systems.</td><td class="td-soon">Coming to JLL. Not available yet — use JLL GPT until then.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">CORE prompting</td><td style="color:var(--b500);font-weight:700">Works great with CORE framework.</td><td style="color:var(--b500);font-weight:700">Works great with CORE framework. Same skills, better results.</td></tr>
+          <tr><td style="font-weight:700;color:var(--g700)">Best for</td><td class="td-good">Daily tasks: emails, minutes, status updates, quick drafts, short reports.</td><td class="td-win">Complex work: long documents, multi-step analysis, difficult communications, RFP packages.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- The bigger picture -->
+  <div class="sec-eye">The bigger picture</div>
+  <div class="g2 mb16">
+    <div class="dark-card card" style="padding:22px 24px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--b400);margin-bottom:10px">What this session built</div>
+      <div style="font-size:14px;font-weight:300;color:white;line-height:1.55;margin-bottom:10px">You came in knowing AI exists. You're leaving knowing how to use it — specifically, effectively, and in the context of your actual work.</div>
+      <ul style="list-style:none">
+        <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.6)"><span style="color:var(--b300)">></span>The CORE framework works in every AI tool</li>
+        <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.6)"><span style="color:var(--b300)">></span>Your prompt library is yours to keep and build on</li>
+        <li style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px;color:rgba(255,255,255,.6)"><span style="color:var(--b300)">></span>The habits you form now will compound when better tools arrive</li>
+        <li style="display:flex;gap:8px;padding:5px 0;font-size:12px;color:rgba(255,255,255,.6)"><span style="color:var(--b300)">></span>Your fluency today is JLL's competitive advantage tomorrow</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--b500);margin-bottom:10px">What's next for you</div>
+        <ul class="checklist">
+          <li><div class="check"></div>Use CORE on one real task this week — meeting minutes, an email, a status update</li>
+          <li><div class="check"></div>Share one output with your team — "here's what I made in 2 minutes"</li>
+          <li><div class="check"></div>Build your personal prompt template (Tab 6)</li>
+          <li><div class="check"></div>30-day pulse survey coming — tell us what you used and what saved you time</li>
+          <li><div class="check"></div>Office hours: bring your real prompts, get live help</li>
+          <li><div class="check"></div>Watch for the Claude announcement — you'll be ahead of the curve</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="dark-card card" style="padding:28px 32px;text-align:center">
+    <div style="font-size:22px;font-weight:300;color:white;margin-bottom:6px">You walked in knowing AI is useful.</div>
+    <div style="font-size:22px;font-weight:700;color:var(--b300);margin-bottom:14px">You're leaving knowing how to make it powerful.</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.45);max-width:480px;margin:0 auto">AI doesn't replace what makes you great at this job. It removes everything that gets in the way of doing it.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+  TAB 8 — FACILITATOR GUIDE
+════════════════════════════════════════════════ -->
+<div id="tab-facilitator" class="tab-page">
+  <div class="hero">
+    <div class="hero-eye">Facilitator Only — Not for display during session</div>
+    <div class="hero-title"><strong>Your 90-minute playbook.</strong></div>
+    <div class="hero-sub">Everything you need to run this session. You've got this.</div>
+  </div>
+
+  <div class="fac-note">
+    <div class="fac-label">A note to you, the facilitator</div>
+    <div class="fac-body">You said you're a 3/10 on AI. Here's the secret: being honest about that is your biggest asset. Say it out loud — "I'm learning this with you." Your team will relax immediately. The most powerful thing you can do is model curiosity, not expertise. The prompts do the heavy lifting. You facilitate the energy and the debrief.</div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="sec-eye mb12">Session timeline</div>
+  <div class="tl-item">
+    <div class="tl-dot" style="background:var(--b500)">1</div>
+    <div class="tl-body">
+      <div class="tl-time">0:00 — 5 min</div>
+      <div class="tl-title">Open with the survey data (Tab 2)</div>
+      <div class="tl-text">Put the headline stats on screen. Pause 3 seconds before speaking — let the numbers land. Quote 2 real responses anonymously. This is your trust-building moment.</div>
+      <div class="say-box">"We asked you what you needed. You told us. We built this for exactly that. 91% of you are already using AI — we're not here to convince you. We're here to make you dramatically better."</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot" style="background:var(--b400)">2</div>
+    <div class="tl-body">
+      <div class="tl-time">5 — 22 min</div>
+      <div class="tl-title">What AI can be for your team (Tab 3)</div>
+      <div class="tl-text">Walk through the 9 AI roles. Don't read them all — pick the 3-4 that match what you heard in the room. Hit the Can/Can't comparison. Land on the dark callout card: "AI removes the drag. You still own the work."</div>
+      <div class="say-box">"The time AI saves doesn't disappear. It becomes time with your clients, your team, and the work that only a skilled professional can do."</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot" style="background:var(--b300)">3</div>
+    <div class="tl-body">
+      <div class="tl-time">22 — 36 min</div>
+      <div class="tl-title">CORE Framework + live demo (Tab 4)</div>
+      <div class="tl-text">2 minutes on the 4 cards. Then SWITCH TO JLL GPT LIVE. Paste the weak prompt first — show the output. Paste the CORE prompt. Let the contrast do the teaching. This is the session's "aha" moment.</div>
+      <div class="say-box">"Same ask. 30 seconds of effort. Completely different output. That's CORE."</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot" style="background:var(--g600)">4</div>
+    <div class="tl-body">
+      <div class="tl-time">36 — 75 min</div>
+      <div class="tl-title">End-to-end lab (Tab 5)</div>
+      <div class="tl-text">Groups of 3-4. Everyone starts with the Project Brief pasted first. Walk them through the decision points — Step 1 → decision → Step 2 → decision → Step 3 or Bonus. Circulate. Help people stuck on pasting context. Never cut this segment.</div>
+    </div>
+  </div>
+  <div class="tl-item">
+    <div class="tl-dot" style="background:var(--g500)">5</div>
+    <div class="tl-body">
+      <div class="tl-time">75 — 85 min</div>
+      <div class="tl-title">Show &amp; tell + group debrief</div>
+      <div class="tl-text">2-3 min per group. Use the debrief questions in Tab 5. Ask what prompt change made the biggest difference. Assign someone to collect best prompts into a shared doc — that becomes your team's living library.</div>
+      <div class="say-box">"Who found something they'll use this week? Raise your hand." (Almost everyone will.)</div>
+    </div>
+  </div>
+  <div class="tl-item" style="padding-bottom:0">
+    <div class="tl-dot" style="background:var(--g400)">6</div>
+    <div class="tl-body">
+      <div class="tl-time">85 — 90 min</div>
+      <div class="tl-title">Close + what's next (Tab 7 star)</div>
+      <div class="tl-text">Point to Tab 6 (Prompt Library) and the Claude preview. Name each takeaway. Announce office hours and peer champions. End with the closing line.</div>
+      <div class="say-box">"AI doesn't replace what makes you great at this job. It removes everything that gets in the way of doing it."</div>
+    </div>
+  </div>
+
+  <!-- When things go sideways -->
+  <div class="sec-eye mt20 mb12">What to say when things go sideways</div>
+  <div class="sideways-q"><div class="sq-head">"The AI output was terrible"</div><div class="sq-body">"Perfect — this is exactly what we need to see. AI makes mistakes. The skill is knowing how to correct it. What information was missing from the prompt? Let's add it and try again." Bad outputs are teaching moments. Reframe them as wins.</div></div>
+  <div class="sideways-q"><div class="sq-head">"This will take my job"</div><div class="sq-body">"AI doesn't replace judgment calls, client relationships, or the expertise to know when the output is wrong. It replaces the typing. You still own the work — AI just removes the drag. Your career got more valuable today, not less."</div></div>
+  <div class="sideways-q"><div class="sq-head">"JLL GPT is frustrating and limited"</div><div class="sq-body">"Your feedback is valid — you saw it in the survey data. Claude is coming to JLL. Today's CORE skills work in both tools. The best thing you can do right now is get so fluent at prompting that when better tools arrive, you're already ahead of everyone else."</div></div>
+  <div class="sideways-q"><div class="sq-head">"What's the difference between JLL GPT and Claude?"</div><div class="sq-body">"Great question — we have a whole tab on that. The short version: both work with CORE, Claude handles longer and more complex work better, and it's coming to JLL. Your skills today apply directly to both."</div></div>
+  <div class="sideways-q"><div class="sq-head">"We're running out of time"</div><div class="sq-body">Cut order: 1) Shorten the Claude preview. 2) Reduce Show & Tell to 2 groups. 3) NEVER cut lab time — the hands-on practice is the entire point of the session.</div></div>
+
+  <!-- Pre-session checklist -->
+  <div class="sec-eye mt20 mb12">Pre-session checklist</div>
+  <ul class="checklist">
+    <li><div class="check"></div>JLL GPT accessible on every laptop — test the day before</li>
+    <li><div class="check"></div>This guide open on your own screen (or printed backup)</li>
+    <li><div class="check"></div>Project Brief copied and ready to paste (Tab 4)</li>
+    <li><div class="check"></div>Someone assigned to capture best prompts during Show & Tell</li>
+    <li><div class="check"></div>30-day pulse survey drafted and ready to send after session</li>
+    <li><div class="check"></div>Leadership endorsement confirmed for peer champion program</li>
+    <li><div class="check"></div>Your opening line ready: "We asked. You told us. We built this for you."</li>
+  </ul>
+</div>
+
+</div><!-- end page-wrap -->
+
+<script>
+// ── TAB SWITCHING ──────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ── TIMER ─────────────────────────────────────
+let timerSeconds = 5400, timerRunning = false, timerInterval = null;
+function toggleTimer() {
+  if (!timerRunning) {
+    timerRunning = true;
+    document.getElementById('timerBtn').classList.add('running');
+    document.getElementById('timerIcon').textContent = '⏸';
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      if (timerSeconds <= 0) { clearInterval(timerInterval); timerSeconds = 0; }
+      updateTimer();
+    }, 1000);
+  } else {
+    timerRunning = false;
+    clearInterval(timerInterval);
+    document.getElementById('timerBtn').classList.remove('running','amber','red');
+    document.getElementById('timerIcon').textContent = '▶';
+  }
+}
+function updateTimer() {
+  const m = Math.floor(timerSeconds / 60), s = timerSeconds % 60;
+  const h = Math.floor(m / 60), rm = m % 60;
+  document.getElementById('timerDisplay').textContent =
+    h > 0 ? `${h}:${rm.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`
+           : `${rm}:${s.toString().padStart(2,'0')}`;
+  const btn = document.getElementById('timerBtn');
+  btn.classList.remove('amber','red');
+  if (timerSeconds <= 600) btn.classList.add('red');
+  else if (timerSeconds <= 1200) btn.classList.add('amber');
+}
+
+// ── COPY PROMPTS ──────────────────────────────
+function copyPrompt(btn) {
+  const box = btn.closest('.prompt-box, .bonus-prompt-area');
+  const clone = box.cloneNode(true);
+  clone.querySelector('.copy-btn')?.remove();
+  const text = clone.innerText.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2500);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = clone.innerText.trim();
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+// ── LAB STEP REVEAL ───────────────────────────
+function showStep(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// ── BONUS PROMPT BUILDER ─────────────────────
+function buildBonusPrompt() {
+  const problem = document.getElementById('bonusProblem').value.trim();
+  if (!problem) { alert('Describe your problem first!'); return; }
+  const out = document.getElementById('bonusOutput');
+  out.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--b600);margin-bottom:8px">Your CORE prompt — paste this into JLL GPT:</div>
+<div style="font-family:'Courier New',monospace;font-size:11.5px;color:var(--g700);line-height:1.7;white-space:pre-wrap">[C] I'm a JLL professional and I have this recurring challenge:
+    "${problem}"
+
+[O] Help me tackle this in three ways:
+    1. Identify the root causes of why this keeps happening
+    2. Give me 3 concrete approaches I could take right now
+    3. Build me a reusable prompt I can use whenever this comes up
+
+[R] You are a strategic advisor who specializes in helping
+    professional services teams work more efficiently.
+
+[E] Be specific and practical — not theoretical. Every suggestion
+    should be something I could actually do this week.
+    End with: "The one question you should be asking is: ___"</div>`;
+  out.style.display = 'block';
+  out.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── BAR CHART ANIMATION ──────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.bar-fill').forEach(b => {
+        b.style.width = b.style.width; // trigger reflow
+      });
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('#tab-survey').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
